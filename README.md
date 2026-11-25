@@ -49,8 +49,9 @@ Once setup finishes and you create your admin account, open **`http://localhost:
 
 ---
 
-## Optional: Using a Custom AoWoW Fork or Branch
-You can build the image from any AoWoW fork or branch using Docker build arguments:
+## Optional: Using the Pre-Patched Fork (PHP 8.4 + AzerothCore Fixes)
+Until the upstream PRs are merged into `azerothcore/aowow`, you can build directly from the combined `all-fixes` branch:
 ```bash
-docker compose build --build-arg AOWOW_REPO=https://github.com<user>/aowow.git --build-arg AOWOW_BRANCH=<branch>
+docker compose build --build-arg AOWOW_REPO=https://github.com/psylopterix/aowow.git --build-arg AOWOW_BRANCH=all-fixes
+docker compose up -d
 ```
