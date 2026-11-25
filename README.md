@@ -23,6 +23,7 @@ Find your AzerothCore Docker network name:
 ```bash
 docker network ls
 ```
+Look for the network ending in `_ac-network` (e.g. `wow-server-playerbots_ac-network`).  
 Update `.env` with your `AC_DOCKER_NETWORK` (e.g. `wow-server-playerbots_ac-network`) and `WOW_DATA_DIR` (path to your WoW 3.3.5a `Data` directory).
 
 ### 2. Build & Start AoWoW
