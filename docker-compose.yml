@@ -1,0 +1,35 @@
+services:
+  aowow:
+    build: .
+    image: aowow-php84:latest
+    container_name: aowow
+    hostname: aowow
+    restart: unless-stopped
+    ports:
+      - "${AOWOW_PORT:-81}:80"
+    environment:
+      - TZ=${TZ:-Europe/Berlin}
+    volumes:
+      - aowow_data:/var/www/html
+    networks:
+      - wow_backend_net
+
+  mpq-extractor:
+    build:
+      context: .
+      dockerfile: Dockerfile.mpq
+    image: aowow-mpq-extractor:latest
+    profiles: ["tools"]
+    volumes:
+      - ${WOW_DATA_DIR:?Please set WOW_DATA_DIR in .env}:/wow-data:ro
+      - aowow_data:/var/www/html
+    environment:
+      - MPQ_OUT_DIR=/var/www/html/setup/mpqdata
+
+volumes:
+  aowow_data:
+
+networks:
+  wow_backend_net:
+    external: true
+    name: ${AC_DOCKER_NETWORK:-wow-server-playerbots_ac-network}

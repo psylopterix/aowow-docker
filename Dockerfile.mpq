@@ -1,0 +1,27 @@
+# ==========================================
+# Stage 1: Build MPQExtractor from source
+# ==========================================
+FROM debian:bookworm-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates git cmake g++ make zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone --recursive https://github.com/Sarjuuk/MPQExtractor.git /src \
+    && cmake -S /src -B /src/build \
+    && cmake --build /src/build -j$(nproc)
+
+# ==========================================
+# Stage 2: Minimal Python + FFmpeg runtime
+# ==========================================
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /src/build/bin/MPQExtractor /usr/local/bin/MPQExtractor
+COPY extract-mpq.py /usr/local/bin/extract-mpq.py
+RUN chmod +x /usr/local/bin/extract-mpq.py
+
+ENTRYPOINT ["python3", "/usr/local/bin/extract-mpq.py"]
