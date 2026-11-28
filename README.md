@@ -37,7 +37,19 @@ Run the one-shot tool container (this extracts DBCs, icons, maps, and converts a
 docker compose --profile tools run --rm mpq-extractor
 ```
 
-### 4. Run the Interactive AoWoW Setup
+### 4. (Recommended) Enable Temporary MySQL Setup Turbo
+Initial SQL generation runs tens of thousands of single-row writes. Temporarily relaxing InnoDB disk flush and binary logging on `ac-database` cuts `--setup` time from **10+ hours down to ~1.5 hours**:
+
+```bash
+docker exec ac-database mysql -uroot -ppassword -e "
+  SET GLOBAL innodb_flush_log_at_trx_commit = 0;
+  SET GLOBAL sync_binlog = 0;
+  SET GLOBAL innodb_doublewrite = 0;
+"
+```
+*(Replace `password` with your MySQL root password from your AzerothCore `.env`.)*
+
+### 5. Run the Interactive AoWoW Setup
 ```bash
 docker exec -it aowow php aowow --setup
 ```
@@ -45,7 +57,16 @@ docker exec -it aowow php aowow --setup
 - For **Static Content Host** (`STATIC_HOST`): enter `localhost:81/static`.
 - When prompted that `http://localhost:81/robots.txt` cannot be accessed from inside the container, press **`c`** (*continue anyway*).
 
-Once setup finishes and you create your admin account, open **`http://localhost:81`** in your browser.
+Once setup finishes, **restore safe MySQL durability defaults** right away:
+```bash
+docker exec ac-database mysql -uroot -ppassword -e "
+  SET GLOBAL innodb_flush_log_at_trx_commit = 1;
+  SET GLOBAL sync_binlog = 1;
+  SET GLOBAL innodb_doublewrite = 1;
+"
+```
+
+Create your admin account when prompted and open **`http://localhost:81`** in your browser.
 
 ---
 
